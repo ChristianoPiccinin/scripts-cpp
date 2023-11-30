@@ -92,7 +92,7 @@ public:
 };
 
 int main() {
-    // Exemplo de uso do sistema
+    
 
     Almoxarifado almoxarifado1(1, "Almoxarifado 1");
 
