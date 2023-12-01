@@ -1,9 +1,9 @@
-
-
-
 #include <iostream>
 #include <vector>
 #include <string>
+
+class NotaFiscalEntrada;  // Adiciona protótipo
+class NotaFiscalSaida;  // Adiciona protótipo
 
 class Produto {
 public:
@@ -24,30 +24,15 @@ public:
 
     Almoxarifado(int _id, const std::string& _nome) : id(_id), nome(_nome) {}
 
-    void adicionarProduto(const NotaFiscalEntrada& notaFiscalEntrada) {
-        // Verifica se a nota fiscal é de entrada (compra)
-        produtos.push_back(Produto(notaFiscalEntrada.idProduto, "", "", 0)); // Adiciona um produto à lista do almoxarifado
-        std::cout << "Produto adicionado ao almoxarifado." << std::endl;
-    }
-
-    void removerProduto(const NotaFiscalSaida& notaFiscalSaida) {
-        for (auto it = produtos.begin(); it != produtos.end(); ++it) {
-            if (it->id == notaFiscalSaida.idProduto) {
-                // Verifica se o produto está presente na nota fiscal de saída associada
-                std::cout << "Produto removido do almoxarifado." << std::endl;
-                produtos.erase(it);
-                return;
-            }
-        }
-        std::cout << "Produto não encontrado no almoxarifado." << std::endl;
-    }
+    void adicionarProduto(const NotaFiscalEntrada& notaFiscalEntrada);  // Adiciona protótipo
+    void removerProduto(const NotaFiscalSaida& notaFiscalSaida);  // Adiciona protótipo
 };
 
 class NotaFiscalEntrada {
 public:
     int id;
     std::string numero;
-    int idProduto;  // Chave estrangeira vinculando a nota fiscal de entrada a um produto
+    int idProduto;
     std::string fornecedor;
 
     NotaFiscalEntrada(int _id, const std::string& _numero, int _idProduto, const std::string& _fornecedor)
@@ -58,8 +43,8 @@ class NotaFiscalSaida {
 public:
     int id;
     std::string numero;
-    int idProduto;  // Chave estrangeira vinculando a nota fiscal de saída a um produto
-    int idCliente;  // Chave estrangeira vinculando a nota fiscal de saída a um cliente
+    int idProduto;
+    int idCliente;
 
     NotaFiscalSaida(int _id, const std::string& _numero, int _idProduto, int _idCliente)
         : id(_id), numero(_numero), idProduto(_idProduto), idCliente(_idCliente) {}
@@ -91,9 +76,23 @@ public:
     }
 };
 
-int main() {
-    
+void Almoxarifado::adicionarProduto(const NotaFiscalEntrada& notaFiscalEntrada) {
+    produtos.push_back(Produto(notaFiscalEntrada.idProduto, "", "", 0));
+    std::cout << "Produto adicionado ao almoxarifado." << std::endl;
+}
 
+void Almoxarifado::removerProduto(const NotaFiscalSaida& notaFiscalSaida) {
+    for (auto it = produtos.begin(); it != produtos.end(); ++it) {
+        if (it->id == notaFiscalSaida.idProduto) {
+            std::cout << "Produto removido do almoxarifado." << std::endl;
+            produtos.erase(it);
+            return;
+        }
+    }
+    std::cout << "Produto não encontrado no almoxarifado." << std::endl;
+}
+
+int main() {
     Almoxarifado almoxarifado1(1, "Almoxarifado 1");
 
     Produto produto1(1, "Produto A", "Linha 1", 100);
@@ -104,7 +103,7 @@ int main() {
     fornecedorXYZ.adicionarNotaFiscalEntrada(notaFiscalEntrada);
 
     Cliente clienteA(1, "Cliente A");
-    NotaFiscalSaida notaFiscalSaida(2, "67890", produto2.id, clienteA.id);  // 1 representa o ID do cliente
+    NotaFiscalSaida notaFiscalSaida(2, "67890", produto2.id, clienteA.id);
     clienteA.adicionarNotaFiscalSaida(notaFiscalSaida);
 
     almoxarifado1.adicionarProduto(notaFiscalEntrada);
