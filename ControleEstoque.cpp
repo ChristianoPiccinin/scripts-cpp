@@ -2,18 +2,16 @@
 #include <vector>
 #include <string>
 
-class NotaFiscalEntrada;  // Adiciona protótipo
-class NotaFiscalSaida;  // Adiciona protótipo
+class NotaFiscalEntrada;
+class NotaFiscalSaida;
 
 class Produto {
 public:
     int id;
     std::string nome;
-    std::string linha;
-    int quantidade;
 
-    Produto(int _id, const std::string& _nome, const std::string& _linha, int _quantidade)
-        : id(_id), nome(_nome), linha(_linha), quantidade(_quantidade) {}
+    Produto(int _id, const std::string& _nome)
+        : id(_id), nome(_nome) {}
 };
 
 class Almoxarifado {
@@ -21,33 +19,36 @@ public:
     int id;
     std::string nome;
     std::vector<Produto> produtos;
+    std::vector<int> quantidades; 
 
     Almoxarifado(int _id, const std::string& _nome) : id(_id), nome(_nome) {}
 
-    void adicionarProduto(const NotaFiscalEntrada& notaFiscalEntrada);  // Adiciona protótipo
-    void removerProduto(const NotaFiscalSaida& notaFiscalSaida);  // Adiciona protótipo
+    void adicionarProduto(const NotaFiscalEntrada& notaFiscalEntrada);
+    void removerProduto(const NotaFiscalSaida& notaFiscalSaida);
 };
 
 class NotaFiscalEntrada {
 public:
     int id;
     std::string numero;
-    int idProduto;
+    Produto produto;
+    int quantidade;
     std::string fornecedor;
 
-    NotaFiscalEntrada(int _id, const std::string& _numero, int _idProduto, const std::string& _fornecedor)
-        : id(_id), numero(_numero), idProduto(_idProduto), fornecedor(_fornecedor) {}
+    NotaFiscalEntrada(int _id, const std::string& _numero, const Produto& _produto, int _quantidade, const std::string& _fornecedor)
+        : id(_id), numero(_numero), produto(_produto), quantidade(_quantidade), fornecedor(_fornecedor) {}
 };
 
 class NotaFiscalSaida {
 public:
     int id;
     std::string numero;
-    int idProduto;
+    Produto produto;
+    int quantidade;
     int idCliente;
 
-    NotaFiscalSaida(int _id, const std::string& _numero, int _idProduto, int _idCliente)
-        : id(_id), numero(_numero), idProduto(_idProduto), idCliente(_idCliente) {}
+    NotaFiscalSaida(int _id, const std::string& _numero, const Produto& _produto, int _quantidade, int _idCliente)
+        : id(_id), numero(_numero), produto(_produto), quantidade(_quantidade), idCliente(_idCliente) {}
 };
 
 class Cliente {
@@ -77,37 +78,103 @@ public:
 };
 
 void Almoxarifado::adicionarProduto(const NotaFiscalEntrada& notaFiscalEntrada) {
-    produtos.push_back(Produto(notaFiscalEntrada.idProduto, "", "", 0));
-    std::cout << "Produto adicionado ao almoxarifado." << std::endl;
+    produtos.push_back(notaFiscalEntrada.produto);
+    quantidades.push_back(notaFiscalEntrada.quantidade);  
+    std::cout << "Produto adicionado ao almoxarifado. Quantidade final: " << notaFiscalEntrada.quantidade << std::endl;
 }
 
 void Almoxarifado::removerProduto(const NotaFiscalSaida& notaFiscalSaida) {
-    for (auto it = produtos.begin(); it != produtos.end(); ++it) {
-        if (it->id == notaFiscalSaida.idProduto) {
-            std::cout << "Produto removido do almoxarifado." << std::endl;
-            produtos.erase(it);
+    for (size_t i = 0; i < produtos.size(); ++i) {
+        if (produtos[i].id == notaFiscalSaida.produto.id) {
+            if (quantidades[i] >= notaFiscalSaida.quantidade) {
+                quantidades[i] -= notaFiscalSaida.quantidade;
+                std::cout << "Produto removido do almoxarifado. Quantidade final: " << quantidades[i] << std::endl;
+            } else {
+                std::cout << "Quantidade insuficiente do produto no almoxarifado." << std::endl;
+            }
             return;
         }
     }
     std::cout << "Produto não encontrado no almoxarifado." << std::endl;
 }
 
+void exibirProdutos(const Almoxarifado& almoxarifado) {
+    std::cout << "\nProdutos Cadastrados (" << almoxarifado.produtos.size() << "): \n";
+    for (size_t i = 0; i < almoxarifado.produtos.size(); ++i) {
+        std::cout << "ID: " << almoxarifado.produtos[i].id << ", Nome: " << almoxarifado.produtos[i].nome
+                  << ", Quantidade: " << almoxarifado.quantidades[i] << "\n";
+    }
+}
+
+
+
+void exibirEstadoAlmoxarifado(const Almoxarifado& almoxarifado) {
+    std::cout << "\n--- Estado Atual do Almoxarifado ---\n";
+    exibirProdutos(almoxarifado);
+}
+
 int main() {
+    
+    std::cout << "\nCriando Almoxarifado..\n";
     Almoxarifado almoxarifado1(1, "Almoxarifado 1");
+    std::vector<Fornecedor> fornecedores;
+    std::vector<Cliente> clientes;
 
-    Produto produto1(1, "Produto A", "Linha 1", 100);
-    Produto produto2(2, "Produto B", "Linha 2", 50);
+    std::cout << "\Criando Produto..\n";
+    Produto produto(1, "Produto A");
 
+    std::cout << "\Criando Fornecedor..\n";
     Fornecedor fornecedorXYZ(1, "Fornecedor XYZ");
-    NotaFiscalEntrada notaFiscalEntrada(1, "12345", produto1.id, fornecedorXYZ.nome);
+    
+    std::cout << "\Gerando NF Entrada..\n";
+    NotaFiscalEntrada notaFiscalEntrada(1, "12345", produto, 100, fornecedorXYZ.nome);
     fornecedorXYZ.adicionarNotaFiscalEntrada(notaFiscalEntrada);
-
+    
+    std::cout << "\Criando Cliente..\n";
     Cliente clienteA(1, "Cliente A");
-    NotaFiscalSaida notaFiscalSaida(2, "67890", produto2.id, clienteA.id);
+    
+    std::cout << "\Gerando NF Saida..\n";
+    NotaFiscalSaida notaFiscalSaida(2, "67890", produto, 20, clienteA.id);
     clienteA.adicionarNotaFiscalSaida(notaFiscalSaida);
 
-    almoxarifado1.adicionarProduto(notaFiscalEntrada);
-    almoxarifado1.removerProduto(notaFiscalSaida);
+    fornecedores.push_back(fornecedorXYZ);
+    clientes.push_back(clienteA);
+
+    // Menu principal
+    int opcao;
+
+    do {
+        std::cout << "\n--- Menu ---\n";
+        std::cout << "1. Exibir Estado Atual do Almoxarifado\n";
+        std::cout << "2. Adicionar Produto\n";
+        std::cout << "3. Remover Produto\n";
+        std::cout << "0. Sair\n";
+        std::cout << "Escolha uma opção: ";
+        std::cin >> opcao;
+
+        switch (opcao) {
+            case 1:
+                exibirEstadoAlmoxarifado(almoxarifado1);
+                break;
+        
+            case 2:
+                almoxarifado1.adicionarProduto(notaFiscalEntrada);
+                break;
+
+            case 3:
+                almoxarifado1.removerProduto(notaFiscalSaida);
+                break;
+        
+
+            case 0:
+                std::cout << "Saindo do programa.\n";
+                break;
+
+            default:
+                std::cout << "Opção inválida. Tente novamente.\n";
+        }
+
+    } while (opcao != 0);
 
     return 0;
 }
