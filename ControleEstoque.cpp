@@ -106,18 +106,17 @@ Produto Almoxarifado::encontrarProdutoPorId(int id) {
         return *it;
     }
 
-    // Retornar um produto inválido se não for encontrado (pode ser tratado de forma diferente se necessário)
     return Produto(-1, "Produto Não Encontrado");
 }
 
 void Almoxarifado::adicionarProduto(const Produto& produto, int quantidade) {
-    // Verifica se o produto está associado ao almoxarifado
+    
     auto it = std::find(produtos.begin(), produtos.end(), produto);
     if (it != produtos.end()) {
-        // Encontra a posição do produto no vetor
+        
         size_t index = std::distance(produtos.begin(), it);
 
-        // Atualiza a quantidade corretamente
+        
         quantidades[index] += quantidade;
 
         std::cout << "Produto adicionado ao almoxarifado. Quantidade final: " << quantidades[index] << std::endl;
@@ -128,7 +127,7 @@ void Almoxarifado::adicionarProduto(const Produto& produto, int quantidade) {
 
 
 void Almoxarifado::removerProduto(const NotaFiscalSaida& notaFiscalSaida, int quantidade) {
-    // Verifica se a nota fiscal de saída está associada ao almoxarifado
+    
     auto it = std::find(notasFiscaisSaida.begin(), notasFiscaisSaida.end(), notaFiscalSaida);
     if (it != notasFiscaisSaida.end()) {
         for (size_t i = 0; i < produtos.size(); ++i) {
@@ -168,7 +167,7 @@ void Almoxarifado::cadastrarNotaFiscalEntrada() {
     std::cout << "ID do Produto (já cadastrado): ";
     std::cin >> idProduto;
 
-    // Encontrar o produto pelo ID
+    
     Produto produto = encontrarProdutoPorId(idProduto);
 
     if (produto.id == -1) {
@@ -186,7 +185,6 @@ void Almoxarifado::cadastrarNotaFiscalEntrada() {
     NotaFiscalEntrada nfEntrada(notasFiscaisEntrada.size() + 1, numero, produto, quantidade, fornecedor);
     notasFiscaisEntrada.push_back(nfEntrada);
 
-    //adicionarProduto(produto, quantidade);
 }
 
 void Almoxarifado::cadastrarNotaFiscalSaida() {
@@ -199,7 +197,7 @@ void Almoxarifado::cadastrarNotaFiscalSaida() {
     std::cout << "ID do Produto (já cadastrado): ";
     std::cin >> idProduto;
 
-    // Encontrar o produto pelo ID
+    
     Produto produto = encontrarProdutoPorId(idProduto);
 
     if (produto.id == -1) {
@@ -217,8 +215,7 @@ void Almoxarifado::cadastrarNotaFiscalSaida() {
     NotaFiscalSaida nfSaida(notasFiscaisSaida.size() + 1, numero, produto, quantidade, idCliente);
     notasFiscaisSaida.push_back(nfSaida);
 
-    // Atualiza o estoque no almoxarifado
-    //removerProduto(nfSaida, quantidade);
+    
 }
 
 void Almoxarifado::cadastrarProduto() {
@@ -233,7 +230,7 @@ void Almoxarifado::cadastrarProduto() {
 
     Produto produto(idProduto, nomeProduto);
     produtos.push_back(produto);
-    quantidades.push_back(0);  // Inicializa a quantidade como zero
+    quantidades.push_back(0); 
     std::cout << "Produto cadastrado com sucesso." << std::endl;
 }
 
@@ -271,7 +268,6 @@ void Almoxarifado::cadastrarFornecedor() {
 int main() {
     Almoxarifado almoxarifado(1, "Almoxarifado XYZ");
 
-    // Menu principal
     int opcao;
 
     do {
@@ -310,20 +306,17 @@ int main() {
                 break;
 
             case 6:
-                // Entrada de Produto
                 {
-                    // Listar as Notas Fiscais de Entrada cadastradas
+                    
                     std::cout << "\nNotas Fiscais de Entrada Cadastradas:\n";
                     for (const auto &nfEntrada : almoxarifado.notasFiscaisEntrada) {
                         std::cout << "ID: " << nfEntrada.id << ", Número: " << nfEntrada.numero << "\n";
                     }
             
-                    // Solicitar ao usuário escolher uma Nota Fiscal de Entrada
                     int escolhaNotaEntrada;
                     std::cout << "Escolha o ID da Nota Fiscal de Entrada: ";
                     std::cin >> escolhaNotaEntrada;
             
-                    // Encontrar a Nota Fiscal de Entrada escolhida
                     auto notaEntradaEscolhida = std::find_if(
                         almoxarifado.notasFiscaisEntrada.begin(),
                         almoxarifado.notasFiscaisEntrada.end(),
@@ -332,7 +325,6 @@ int main() {
                         });
             
                     if (notaEntradaEscolhida != almoxarifado.notasFiscaisEntrada.end()) {
-                        // Adicionar o produto ao almoxarifado usando a quantidade da nota fiscal
                         almoxarifado.adicionarProduto(notaEntradaEscolhida->produto, notaEntradaEscolhida->quantidade);
                     } else {
                         std::cout << "Nota Fiscal de Entrada não encontrada.\n";
@@ -343,20 +335,16 @@ int main() {
 
 
             case 7:
-                // Saída de Produto
                 {
-                    // Listar as Notas Fiscais de Saída cadastradas
                     std::cout << "\nNotas Fiscais de Saída Cadastradas:\n";
                     for (const auto &nfSaida : almoxarifado.notasFiscaisSaida) {
                         std::cout << "ID: " << nfSaida.id << ", Número: " << nfSaida.numero << "\n";
                     }
             
-                    // Solicitar ao usuário escolher uma Nota Fiscal de Saída
                     int escolhaNotaSaida;
                     std::cout << "Escolha o ID da Nota Fiscal de Saída: ";
                     std::cin >> escolhaNotaSaida;
             
-                    // Encontrar a Nota Fiscal de Saída escolhida
                     auto notaSaidaEscolhida = std::find_if(
                         almoxarifado.notasFiscaisSaida.begin(),
                         almoxarifado.notasFiscaisSaida.end(),
@@ -365,7 +353,6 @@ int main() {
                         });
             
                     if (notaSaidaEscolhida != almoxarifado.notasFiscaisSaida.end()) {
-                        // Remover o produto associado à Nota Fiscal de Saída do almoxarifado usando a quantidade da nota fiscal
                         almoxarifado.removerProduto(*notaSaidaEscolhida, notaSaidaEscolhida->quantidade);
                     } else {
                         std::cout << "Nota Fiscal de Saída não encontrada.\n";
