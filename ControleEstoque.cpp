@@ -56,9 +56,6 @@ public:
 
     Cliente(int _id, const std::string& _nome) : id(_id), nome(_nome) {}
 
-    void adicionarNotaFiscalSaida(const NotaFiscalSaida& notaFiscalSaida) {
-        notasFiscaisSaida.push_back(notaFiscalSaida);
-    }
 };
 
 class Fornecedor {
@@ -69,9 +66,6 @@ public:
 
     Fornecedor(int _id, const std::string& _nome) : id(_id), nome(_nome) {}
 
-    void adicionarNotaFiscalEntrada(const NotaFiscalEntrada& notaFiscalEntrada) {
-        notasFiscaisEntrada.push_back(notaFiscalEntrada);
-    }
 };
 
 class Almoxarifado {
